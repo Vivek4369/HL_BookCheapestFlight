@@ -31,4 +31,26 @@ export class HP{
         await this.page.locator(Homepage.TopFlighShowing).nth(4).click()
     }
 
+    async ValidateIncorrectPromoCode(PromoCode : string){
+        //Test Invalid Coupan Cod
+        if(await this.page.locator(FlightDetailsSection.ClearCoupanCodeButton).isVisible()){
+            await this.page.locator(FlightDetailsSection.ClearCoupanCodeButton).click()
+        }
+        await this.page.locator(FlightDetailsSection.CoupanCodeInput).fill(PromoCode)
+        await this.page.locator(FlightDetailsSection.CoupanCodeApplyButton).click()
+        await expect(this.page.locator(FlightDetailsSection.CoupanCodeStatusText)).toContainText('Invalid Coupon')
+    }
+
+    async ValidateCorrectPromoCode(PromoCode : string){
+        //Test Valid Coupan Codes
+        if(await this.page.locator(FlightDetailsSection.ClearCoupanCodeButton).isVisible()){
+            await this.page.locator(FlightDetailsSection.ClearCoupanCodeButton).click()
+        }
+        await this.page.locator(FlightDetailsSection.CoupanCodeInput).fill(PromoCode)
+        await this.page.locator(FlightDetailsSection.CoupanCodeApplyButton).click()
+        await expect(this.page.locator(FlightDetailsSection.CoupanCodeStatusText)).toContainText('Congratulations')
+        // await expect(page.locator(FlightDetailsSection.GrandTotalPrice)).not.toHaveValue(lowestPrice)
+
+    }
+
 }

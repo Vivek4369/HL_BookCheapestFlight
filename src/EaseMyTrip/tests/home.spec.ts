@@ -2,11 +2,9 @@ import { test, expect , chromium, Page} from '@playwright/test';
 import { Homepage, FlightSection, FlightDetailsSection } from '../locators/locators';
 import { HP } from '../pages/Homepage';
 
-
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
-
 
 test.describe("Test to Book a flight in EaseMyTrip", async () =>{
 
@@ -39,11 +37,11 @@ test.describe("Test to Book a flight in EaseMyTrip", async () =>{
         
         let cheapestDateElement = "";
         
-        await sleep(3000)
+        await sleep(2000)
         for (const dateElement of dateElements) {
 
             const priceText = await dateElement.$eval('span', el => el.textContent?.trim()); 
-            console.log("price : ",priceText)
+            
             const price = parseInt(priceText.replace(/[^0-9]/g, ''), 10);
             
             if (price < lowestPrice) {
@@ -59,47 +57,31 @@ test.describe("Test to Book a flight in EaseMyTrip", async () =>{
         await page.locator(Homepage.HomePageSearchButton).click()
 
     });
+    //FLIGHT SHOWING PAGE :::
     test("All Flights Showing Section : Select First flight", async() =>{
-
-        //FLIGHT SHOWING PAGE :::
         await page.locator(FlightSection.FlightBookButton).first().click() 
-
     });
+
     test("Check if Grand Total Price is Matching the Cheapest Flight Price", async() =>{
         //Test the Price of the Flight
         const FinalPriceText = String(await page.locator(FlightDetailsSection.GrandTotalPrice).textContent() )
         const FinalPrice = parseInt(FinalPriceText.replace(/[^0-9]/g, ''), 10);
-
+        console.log("FinalPrice : ",FinalPrice)
+        console.log("lowestPrice : ",lowestPrice)
         if( FinalPrice == lowestPrice){
           console.log("Cheapest Flight Price equals to Grand Total of the Flight")
         }
     });
+    
+    //Test Invalid Coupan Code
     test("Test Invalid Promo Code", async() =>{
-        //Test Invalid Coupan Code
-        await page.locator(FlightDetailsSection.ClearCoupanCodeButton).click()
-        await page.locator(FlightDetailsSection.CoupanCodeInput).fill('Invalid Code')
-        await page.locator(FlightDetailsSection.CoupanCodeApplyButton).click()
-        await expect(page.locator(FlightDetailsSection.CoupanCodeStatusText)).toContainText('Invalid Coupon')
-
-
+        await flightHP.ValidateIncorrectPromoCode('Invalid Code')
     });
 
-
+    //Test Valid Coupan Codes
     test("Test Valid Promo Codes", async() =>{
-
-        //Test Valid Coupan Codes
-
-        await page.locator(FlightDetailsSection.CoupanCodeInput).fill('BESTDEAL')
-        await page.locator(FlightDetailsSection.CoupanCodeApplyButton).click()
-        await expect(page.locator(FlightDetailsSection.CoupanCodeStatusText)).toContainText('Congratulations')
-
-        await page.locator(FlightDetailsSection.ClearCoupanCodeButton).click()
-        await page.locator(FlightDetailsSection.CoupanCodeInput).fill('Delight')
-        await page.locator(FlightDetailsSection.CoupanCodeApplyButton).click()
-        await expect(page.locator(FlightDetailsSection.CoupanCodeStatusText)).toContainText('Congratulations')
-        // await expect(page.locator(FlightDetailsSection.GrandTotalPrice)).not.toHaveValue(lowestPrice)
-
+        await flightHP.ValidateCorrectPromoCode('BESTDEAL');
+        await flightHP.ValidateCorrectPromoCode('Delight');
     });
-
 
 });
