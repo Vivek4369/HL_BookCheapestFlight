@@ -1,6 +1,6 @@
 import { test, expect , chromium, Page} from '@playwright/test';
 import { Homepage, FlightSection, FlightDetailsSection } from '../locators/locators';
-// import { navigatetoFlightsHomePage } from '../pages/Homepage';
+import { HP } from '../pages/Homepage';
 
 
 function sleep(ms) {
@@ -8,33 +8,25 @@ function sleep(ms) {
 }
 
 
-test.describe("Test to Book a flight in EaseMyTrip", () =>{
+test.describe("Test to Book a flight in EaseMyTrip", async () =>{
 
   let page: Page;
+  let flightHP: HP;
+
   test.beforeAll(async ({  }) => {
     const browser = await chromium.launch({ headless: false });
     page = await browser.newPage();
+    flightHP = new HP(page)
   });
   let lowestPrice = Infinity;
-
-    test("Enter Details in Section Flights from and Flights to", async ({})=>{
+    test("Navigate to Ease My Trip Flight Homepage", async()=>{
+        await flightHP.navigatetoFlightsHomePage();
+    });
+    test("Enter Details in Section Flights from and Flights to1", async ({})=>{
         
-        await page.goto('https://www.easemytrip.com/flights.html', { waitUntil: 'domcontentloaded' });
-        
-        //select flight from
-        await page.locator(Homepage.HomePageFlightFromLabel).click()
-        await page.locator(Homepage.HomePageFlightFromInput).pressSequentially('delhi')
-        await page.locator(Homepage.TopFlighShowing).first().click()
-        await sleep(1000)
-
-        //select flight to
-        // await page.locator(Homepage.HomePageFlightToLabel).click()
-        await page.locator(Homepage.HomePageFlightToInput).pressSequentially('dehradun')
-        await sleep(1000)
-        await page.locator(Homepage.TopFlighShowing).nth(4).isVisible()
-        await page.locator(Homepage.TopFlighShowing).nth(4).click()
-
-
+        await flightHP.navigatetoFlightsHomePage();
+        await flightHP.selectToDestination();
+        await flightHP.selectFromDestination();
         
     });
 
@@ -94,6 +86,7 @@ test.describe("Test to Book a flight in EaseMyTrip", () =>{
 
 
     test("Test Valid Promo Codes", async() =>{
+
         //Test Valid Coupan Codes
 
         await page.locator(FlightDetailsSection.CoupanCodeInput).fill('BESTDEAL')
